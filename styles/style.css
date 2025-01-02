@@ -1,0 +1,115 @@
+/* Cabeçalho */
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+/* Ajuste do contêiner com cabeçalho */
+body {
+  padding-top: 60px; /* Compensa a altura do cabeçalho */
+}
+
+/* Estilos Globais */
+body {
+  font-family: "Orbitron", sans-serif;
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  color: white;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+  width: 650px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+/* Título dentro do contêiner */
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+/* Botões e inputs */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px 0;
+  font-size: 1rem;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+#fileLabel {
+  cursor: pointer;
+}
+
+/* Estilos para os botões centralizados */
+.main-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 50px;
+}
+
+.center-button {
+  font-family: "Orbitron", sans-serif; /* Fonte igual ao cabeçalho */
+  font-size: 1.2rem;
+  padding: 12px 24px;
+  background-color: #ff9800; /* Cor laranja que destaca bem no fundo azul */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.center-button:hover {
+  background-color: #e68900; /* Laranja mais escuro para hover */
+}
+
+/* Estilo do botão de seleção de pasta */
+.file-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+input[type="file"] {
+  display: none; /* Esconde o botão real */
+}
