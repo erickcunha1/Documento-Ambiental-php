@@ -1,22 +1,30 @@
 <?php
+require 'vendor/autoload.php';
+// require 'python/extracao_valor.py';
+
 
 // Função para remover o sufixo 'ha' e converter o valor para float
-function remover_sufixo_ha($valor_str) {
-    // Remove tudo o que não for número, ponto ou vírgula
-    $valor_limpo = preg_replace('/[^\d.,]/', '', $valor_str);
-    
-    // Substitui vírgula por ponto para garantir a conversão correta para float
-    return (float) str_replace(',', '.', $valor_limpo);
-}
+// function remover_sufixo_ha($valor_str) {
+//     // Remove tudo o que não for número, ponto ou vírgula
+//     $valor_limpo = preg_replace('/[^\d.,]/', '', $valor_str);
+//     echo $valor_limpo;
+//     // Substitui vírgula por ponto para garantir a conversão correta para float
+//     return (float) str_replace(',', '.', $valor_limpo);
+// }
 
 // Função para calcular o VETP1
 function calcular_VETP1($VET1, $i, $n1, $p) {
+    // Verificar se todos os parâmetros são numéricos
     if (!is_numeric($VET1) || !is_numeric($i) || !is_numeric($n1) || !is_numeric($p)) {
         throw new Exception("Os valores de entrada não são numéricos.");
     }
+   
+    // Realizar o cálculo do VETP1 e arredondar para duas casas decimais
+    $VETP1 = $VET1 * (((1 + $i) ** $n1 - 1) / (2 * $i)) * ($n1 / $p);
 
-    return $VET1 * (((1 + $i) ** $n1 - 1) / (2 * $i)) * ($n1 / $p);
+    return $VETP1;
 }
+
 
 // Função para calcular o VETP2
 function calcular_VETP2($VET2, $i, $n2, $p) {
@@ -34,14 +42,14 @@ function calcular_VETP_total($VETP1, $VETP2) {
 
 // Função para calcular o valor do dano reversível
 function calcular_valor_dano_reversivel($A, $VETP_reais) {
-    if (is_string($A)) {
-        // Se A for string, remove o sufixo e converte para float
-        try {
-            $A = remover_sufixo_ha($A);
-        } catch (Exception $e) {
-            $A = 0;
-        }
-    }
+    // if (is_string($A)) {
+    //     // Se A for string, remove o sufixo e converte para float
+    //     try {
+    //         $A = remover_sufixo_ha($A);
+    //     } catch (Exception $e) {
+    //         $A = 0;
+    //     }
+    // }
 
     if (!is_numeric($A) || !is_numeric($VETP_reais)) {
         throw new Exception("A ou VETP_reais não são numéricos.");
@@ -51,39 +59,27 @@ function calcular_valor_dano_reversivel($A, $VETP_reais) {
     return number_format($valor_dano, 2, ',', '.');
 }
 
-// Função para ler os dados do arquivo Excel (utiliza PHPExcel ou PHPSpreadsheet)
+// Função para ler os dados do arquivo Excel (utiliza PHPSpreadsheet)
 function extrair_valor_data($bioma, $ano) {
-    $arquivo_excel = 'complementares/valores_2.xlsx';
 
-    if (!file_exists($arquivo_excel)) {
-        echo "Arquivo não encontrado!";
-        return null;
-    }
+    // Carregar o arquivo Excel usando PhpSpreadsheet
+    $scriptPath = 'python/extracao_bioma_ano.py';
+    // Executando o comando e capturando o resultado
+    $command = escapeshellcmd("python $scriptPath $bioma $ano");
 
-    require_once 'vendor/autoload.php'; // Certifique-se de instalar o PHPSpreadsheet
+    // Executar o comando e capturar a saída
+    $output = shell_exec($command);
 
-    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($arquivo_excel);
-    $sheet = $spreadsheet->getActiveSheet();
-    $tabela = $sheet->toArray();
 
-    foreach ($tabela as $linha) {
-        if ($linha[0] == $ano) {
-            // Assumindo que os biomas estão nas colunas a partir da segunda coluna
-            $coluna = array_search($bioma, $linha);
-            if ($coluna !== false) {
-                return (float) $linha[$coluna];
-            }
-        }
-    }
-
-    return null;
+    return $output;
 }
 
 // Função principal para realizar o cálculo do dano reversível
 function realizar_calculo($bioma, $area_afetada, $tempo_n1, $ano) {
     $biomas = [
-        'Cerrado' => [10, 20], // Exemplo de dados de bioma
-        'Mata Atlântica' => [15, 25],
+        'Mata Atlântica' => [20, 60], # Tempo de regeneracao/ Tempo "p" (anos)
+        'Caatinga' => [25, 40],
+        'Cerrado' => [20, 30],
     ];
 
     list($n2, $p) = $biomas[$bioma];
@@ -91,6 +87,7 @@ function realizar_calculo($bioma, $area_afetada, $tempo_n1, $ano) {
     $ano_atual = date('Y');
     $VET1 = extrair_valor_data($bioma, $ano);
     $VET2 = extrair_valor_data($bioma, $ano_atual);
+
     $i = 0.12; // Taxa de juros (12% ao ano)
 
     if ($VET1 === null || $VET2 === null) {
@@ -106,12 +103,14 @@ function realizar_calculo($bioma, $area_afetada, $tempo_n1, $ano) {
 
     // Cálculo final do valor do dano reversível
     return calcular_valor_dano_reversivel($area_afetada, $VETP);
+
+    
 }
 
-try {
-    $resultado = realizar_calculo('Cerrado', 100, 5, 2015);
-    echo "Valor do Dano Reversível: R$ " . $resultado . "\n";
-} catch (Exception $e) {
-    echo "Erro: " . $e->getMessage() . "\n";
-}
+// try {
+//     $resultado = realizar_calculo('Cerrado', 100, 5, 2015);
+//     echo "Valor do Dano Reversível: R$ " . $resultado . "\n";
+// } catch (Exception $e) {
+//     // echo "Erro: " . $e->getMessage() . "\n";
+// }
 ?>
